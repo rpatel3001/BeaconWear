@@ -8,8 +8,18 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.Observer
 import org.altbeacon.beacon.*
 import org.altbeacon.bluetooth.BluetoothMedic
+import android.bluetooth.le.AdvertiseSettings
 
-class BeaconReferenceApplication: Application() {
+import android.bluetooth.le.AdvertiseCallback
+
+import org.altbeacon.beacon.BeaconTransmitter
+
+import org.altbeacon.beacon.BeaconParser
+
+import org.altbeacon.beacon.Beacon
+
+
+class BeaconReferenceApplication: Application(), MonitorNotifier {
     lateinit var region: Region
 
     override fun onCreate() {
@@ -53,27 +63,45 @@ class BeaconReferenceApplication: Application() {
         // you can use the library's built-in foreground service to unlock this behavior on Android
         // 8+.   the method below shows how you set that up.
         setupForegroundService()
-        beaconManager.setEnableScheduledScanJobs(true)
-        beaconManager.backgroundBetweenScanPeriod = 0
-        beaconManager.backgroundScanPeriod = 1100
 
-        // Ranging callbacks will drop out if no beacons are detected
-        // Monitoring callbacks will be delayed by up to 25 minutes on region exit
-        // beaconManager.setIntentScanningStrategyEnabled(true)
+        beaconManager.setEnableScheduledScanJobs(false)
 
-        // The code below will start "monitoring" for beacons matching the region definition below
-        // the region definition is a wildcard that matches all beacons regardless of identifiers.
-        // if you only want to detect beacons with a specific UUID, change the id1 parameter to
-        // a UUID like Identifier.parse("2F234454-CF6D-4A0F-ADF2-F4911BA9FFA6")
-        region = Region("radius-uuid", null, null, null)
+        // The following code block effectively disables beacon scanning in the foreground service
+        // to save battery.  Do not include this code block if you want to detect beacons
+        beaconManager.beaconParsers.clear() // clearing all beacon parsers ensures nothing matches
+        beaconManager.backgroundBetweenScanPeriod = Long.MAX_VALUE
+        beaconManager.backgroundScanPeriod = 0
+        beaconManager.foregroundBetweenScanPeriod = Long.MAX_VALUE
+        beaconManager.foregroundScanPeriod = 0
+
+        // The following code block activates the foreground service by starting background scanning
+        region = Region("dummy-region", Identifier.parse("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"), null, null)
         beaconManager.startMonitoring(region)
-        beaconManager.startRangingBeacons(region)
-        // These two lines set up a Live Data observer so this Activity can get beacon data from the Application class
-        val regionViewModel = BeaconManager.getInstanceForApplication(this).getRegionViewModel(region)
-        // observer will be called each time the monitored regionState changes (inside vs. outside region)
-        regionViewModel.regionState.observeForever( centralMonitoringObserver)
-        // observer will be called each time a new list of beacons is ranged (typically ~1 second in the foreground)
-        regionViewModel.rangedBeacons.observeForever( centralRangingObserver)
+        beaconManager.addMonitorNotifier(this)
+
+        // This code block starts beacon transmission
+        val beacon = Beacon.Builder()
+            .setId1("2f234454-cf6d-4a0f-adf2-f4911ba9ffa6")
+            .setId2("1")
+            .setId3("2")
+            .setManufacturer(0x0118) // Radius Networks.  Change this for other beacon layouts
+            .setTxPower(-59)
+            .setDataFields(listOf(0)) // Remove this for beacon layouts without d: fields
+            .build()
+
+        // Change the layout below for other beacon types
+        val beaconParser = BeaconParser()
+            .setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24")
+        val beaconTransmitter = BeaconTransmitter(applicationContext, beaconParser)
+        beaconTransmitter.startAdvertising(beacon, object : AdvertiseCallback() {
+            override fun onStartFailure(errorCode: Int) {
+                Log.e(TAG, "Advertisement start failed with code: $errorCode")
+            }
+
+            override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
+                Log.i(TAG, "Advertisement start succeeded.")
+            }
+        })
     }
 
     private fun setupForegroundService() {
@@ -132,5 +160,9 @@ class BeaconReferenceApplication: Application() {
     companion object {
         const val TAG = "BeaconReference"
     }
+
+    override fun didEnterRegion(region: Region?) {}
+    override fun didExitRegion(region: Region?) {}
+    override fun didDetermineStateForRegion(state: Int, region: Region?) {}
 
 }
