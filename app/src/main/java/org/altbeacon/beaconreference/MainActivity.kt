@@ -7,43 +7,14 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.ListView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
-import org.altbeacon.beacon.Beacon
-import org.altbeacon.beacon.BeaconManager
-import org.altbeacon.beacon.MonitorNotifier
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var beaconListView: ListView
-    private lateinit var beaconCountTextView: TextView
-    private lateinit var monitoringButton: Button
-    private lateinit var rangingButton: Button
-    private lateinit var beaconReferenceApplication: BeaconReferenceApplication
-    private var alertDialog: AlertDialog? = null
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        beaconReferenceApplication = application as BeaconReferenceApplication
-
-        // Set up a Live Data observer for beacon data
-        val regionViewModel = BeaconManager.getInstanceForApplication(this).getRegionViewModel(beaconReferenceApplication.region)
-        // observer will be called each time the monitored regionState changes (inside vs. outside region)
-        regionViewModel.regionState.observe(this, monitoringObserver)
-        // observer will be called each time a new list of beacons is ranged (typically ~1 second in the foreground)
-        regionViewModel.rangedBeacons.observe(this, rangingObserver)
-        rangingButton = findViewById(R.id.rangingButton)
-        monitoringButton = findViewById(R.id.monitoringButton)
-        beaconListView = findViewById(R.id.beaconList)
-        beaconCountTextView = findViewById(R.id.beaconCount)
-        beaconCountTextView.text = "No beacons detected"
-        beaconListView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, arrayOf("--"))
     }
 
     override fun onPause() {
@@ -54,44 +25,6 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onResume")
         super.onResume()
         checkPermissions()
-    }
-
-    @SuppressLint("SetTextI18n")
-    val monitoringObserver = Observer<Int> { state ->
-        var dialogTitle = "Beacons detected"
-        var dialogMessage = "didEnterRegionEvent has fired"
-        var stateString = "inside"
-        if (state == MonitorNotifier.OUTSIDE) {
-            dialogTitle = "No beacons detected"
-            dialogMessage = "didExitRegionEvent has fired"
-            stateString = "outside"
-            beaconCountTextView.text = "Outside of the beacon region -- no beacons detected"
-            beaconListView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, arrayOf("--"))
-        }
-        else {
-            beaconCountTextView.text = "Inside the beacon region."
-        }
-        Log.d(TAG, "monitoring state changed to : $stateString")
-        val builder =
-            AlertDialog.Builder(this)
-        builder.setTitle(dialogTitle)
-        builder.setMessage(dialogMessage)
-        builder.setPositiveButton(android.R.string.ok, null)
-        alertDialog?.dismiss()
-        alertDialog = builder.create()
-        alertDialog?.show()
-    }
-
-    @SuppressLint("SetTextI18n")
-    val rangingObserver = Observer<Collection<Beacon>> { beacons ->
-        Log.d(TAG, "Ranged: ${beacons.count()} beacons")
-        if (BeaconManager.getInstanceForApplication(this).rangedRegions.isNotEmpty()) {
-            beaconCountTextView.text = "Ranging enabled: ${beacons.count()} beacon(s) detected"
-            beaconListView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1,
-                beacons
-                    .sortedBy { it.distance }
-                    .map { "${it.id1}\nid2: ${it.id2} id3:  rssi: ${it.rssi}\nest. distance: ${it.distance} m" }.toTypedArray())
-        }
     }
 
     override fun onRequestPermissionsResult(
@@ -106,65 +39,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkPermissions() {
-        // base permissions are for M and higher
-        var permissions = arrayOf( Manifest.permission.ACCESS_FINE_LOCATION)
-        var permissionRationale = "This app needs fine location permission and nearby devices permission to detect beacons.  Please grant this now."
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.R) {
-            // Uncomment line below if targeting SDK 31
-            permissions = arrayOf( Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.BLUETOOTH_SCAN)
-            permissionRationale ="This app needs both fine location permission and nearby devices permission to detect beacons.  Please grant both now."
-        }
-        var allGranted = true
-        for (permission in permissions) {
-            if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) allGranted = false
-        }
-        if (!allGranted) {
-            if (!shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                val builder =
-                    AlertDialog.Builder(this)
-                builder.setTitle("This app needs permissions to detect beacons")
-                builder.setMessage(permissionRationale)
-                builder.setPositiveButton(android.R.string.ok, null)
-                builder.setOnDismissListener {
-                    requestPermissions(
-                        permissions,
-                        PERMISSION_REQUEST_FINE_LOCATION
-                    )
-                }
-                builder.show()
-            }
-            else {
-                val builder =
-                    AlertDialog.Builder(this)
-                builder.setTitle("Functionality limited")
-                builder.setMessage("Since location and device permissions have not been granted, this app will not be able to discover beacons.  Please go to Settings -> Applications -> Permissions and grant location and device discovery permissions to this app.")
-                builder.setPositiveButton(android.R.string.ok, null)
-                builder.setOnDismissListener { }
-                builder.show()
-            }
-        }
-        else {
-            if (checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-            ) {
-                if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+            val permissionRationale ="This app needs permission to broadcast. "
+
+            if (checkSelfPermission(Manifest.permission.BLUETOOTH_ADVERTISE) != PackageManager.PERMISSION_GRANTED) {
+                if (!shouldShowRequestPermissionRationale(Manifest.permission.BLUETOOTH_ADVERTISE)) {
                     val builder =
                         AlertDialog.Builder(this)
-                    builder.setTitle("This app needs background location access")
-                    builder.setMessage("Please grant location access so this app can detect beacons in the background.")
+                    builder.setTitle("Permission Required")
+                    builder.setMessage(permissionRationale)
                     builder.setPositiveButton(android.R.string.ok, null)
                     builder.setOnDismissListener {
-                        requestPermissions(
-                            arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                            PERMISSION_REQUEST_BACKGROUND_LOCATION
-                        )
+                        requestPermissions(arrayOf(Manifest.permission.BLUETOOTH_ADVERTISE), 1)
                     }
                     builder.show()
-                } else {
+                }
+                else {
                     val builder =
                         AlertDialog.Builder(this)
                     builder.setTitle("Functionality limited")
-                    builder.setMessage("Since background location access has not been granted, this app will not be able to discover beacons in the background.  Please go to Settings -> Applications -> Permissions and grant background location access to this app.")
+                    builder.setMessage("Since BLE Advertise permission have not been granted, this app will not be able to broadcast.  Please go to Settings -> Applications -> Permissions and grant Bluetooth permissions to this app.")
                     builder.setPositiveButton(android.R.string.ok, null)
                     builder.setOnDismissListener { }
                     builder.show()
@@ -175,8 +69,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val TAG = "MainActivity"
-        const val PERMISSION_REQUEST_BACKGROUND_LOCATION = 0
-        const val PERMISSION_REQUEST_FINE_LOCATION = 1
     }
 
 }

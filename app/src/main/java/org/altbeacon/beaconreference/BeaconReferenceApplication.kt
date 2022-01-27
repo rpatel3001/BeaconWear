@@ -120,23 +120,6 @@ class BeaconReferenceApplication: Application(), MonitorNotifier {
         BeaconManager.getInstanceForApplication(this).enableForegroundServiceScanning(builder.build(), 456)
     }
 
-    private fun sendNotification() {
-        val builder = NotificationCompat.Builder(this, "beacon-ref-notification-id")
-            .setContentTitle("Beacon Reference Application")
-            .setContentText("A beacon is nearby.")
-            .setSmallIcon(R.drawable.ic_launcher_background)
-        val stackBuilder = TaskStackBuilder.create(this)
-        stackBuilder.addNextIntent(Intent(this, MainActivity::class.java))
-        val resultPendingIntent = stackBuilder.getPendingIntent(
-            0,
-            PendingIntent.FLAG_UPDATE_CURRENT + PendingIntent.FLAG_IMMUTABLE
-        )
-        builder.setContentIntent(resultPendingIntent)
-        val notificationManager =
-            this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(1, builder.build())
-    }
-
     companion object {
         const val TAG = "BeaconReference"
     }

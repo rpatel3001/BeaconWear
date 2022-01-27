@@ -15,42 +15,13 @@
         tools:context=".MainActivity"
         app:layout_boxedEdges="all">
 
-        <TextView
-            android:id="@+id/beaconCount"
-            android:text="0 visible beacons:"
-            android:textAlignment="center"
+        <Button
+            android:id="@+id/monitoringButton"
+            android:text="Disable Monitoring"
+            android:onClick="monitoringButtonTapped"
             android:layout_width="match_parent"
-            android:layout_height="20dp"/>
-        <ListView
-            android:id="@+id/beaconList"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
-        </ListView>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_weight="0">
-            <Button
-                android:id="@+id/rangingButton"
-                android:onClick="rangingButtonTapped"
-                android:text="Disable Ranging"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                style="?android:attr/buttonBarButtonStyle">
-            </Button>
-            <Button
-                android:id="@+id/monitoringButton"
-                android:text="Disable Monitoring"
-                android:onClick="monitoringButtonTapped"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                style="?android:attr/buttonBarButtonStyle">
-            </Button>
-        </LinearLayout>
+            android:layout_height="wrap_content">
+        </Button>
 
     </LinearLayout>
 
