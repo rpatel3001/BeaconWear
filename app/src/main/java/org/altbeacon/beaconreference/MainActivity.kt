@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
@@ -15,6 +16,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        supportActionBar?.hide()
     }
 
     override fun onPause() {
@@ -25,6 +27,10 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onResume")
         super.onResume()
         checkPermissions()
+    }
+
+    fun broadcastButtonTapped(view: View) {
+
     }
 
     override fun onRequestPermissionsResult(
