@@ -70,7 +70,7 @@ class BeaconReferenceApplication: Application(), MonitorNotifier {
             .setId2("64")
             .setId3("1")
             .setManufacturer(0x004c)
-            .setTxPower(-56)
+            .setTxPower(-62)
             .setDataFields(listOf(0))
             .build()
 
@@ -90,6 +90,8 @@ class BeaconReferenceApplication: Application(), MonitorNotifier {
 
 
         val beaconTransmitter = BeaconTransmitter(applicationContext, beaconParser)
+        beaconTransmitter.advertiseTxPowerLevel = AdvertiseSettings.ADVERTISE_TX_POWER_ULTRA_LOW
+        beaconTransmitter.advertiseMode = AdvertiseSettings.ADVERTISE_MODE_LOW_POWER
         beaconTransmitter.startAdvertising(beacon, object : AdvertiseCallback() {
             override fun onStartFailure(errorCode: Int) {
                 Log.e(TAG, "Advertisement start failed with code: $errorCode")

@@ -83,15 +83,33 @@
                 android:layout_height="wrap_content"
                 android:importantForAutofill="no"
                 android:inputType="numberSigned"
-                android:layout_weight="3"/>
+                android:layout_weight="1"/>
+            <TextView
+                android:labelFor="@+id/freq"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Freq"
+                android:layout_weight="1"/>
+            <EditText
+                android:id="@+id/freq"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:importantForAutofill="no"
+                android:inputType="numberSigned"
+                android:layout_weight="1"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
             <Button
                 android:id="@+id/broadcastButton"
                 android:text="Start"
                 android:onClick="broadcastButtonTapped"
                 android:textSize="11sp"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="3"/>
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
         </LinearLayout>
 
     </LinearLayout>
