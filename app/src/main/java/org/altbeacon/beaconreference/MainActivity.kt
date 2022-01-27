@@ -94,51 +94,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("SetTextI18n")
-    fun rangingButtonTapped(view: View) {
-        val beaconManager = BeaconManager.getInstanceForApplication(this)
-        if (beaconManager.rangedRegions.isEmpty()) {
-            beaconManager.startRangingBeacons(beaconReferenceApplication.region)
-            rangingButton.text = "Stop Ranging"
-            beaconCountTextView.text = "Ranging enabled -- awaiting first callback"
-        }
-        else {
-            beaconManager.stopRangingBeacons(beaconReferenceApplication.region)
-            rangingButton.text = "Start Ranging"
-            beaconCountTextView.text = "Ranging disabled -- no beacons detected"
-            beaconListView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, arrayOf("--"))
-        }
-    }
-
-    @SuppressLint("SetTextI18n")
-    fun monitoringButtonTapped(view: View) {
-        var dialogTitle = ""
-        var dialogMessage = ""
-        val beaconManager = BeaconManager.getInstanceForApplication(this)
-        if (beaconManager.monitoredRegions.isEmpty()) {
-            beaconManager.startMonitoring(beaconReferenceApplication.region)
-            dialogTitle = "Beacon monitoring started."
-            dialogMessage = "You will see a dialog if a beacon is detected, and another if beacons then stop being detected."
-            monitoringButton.text = "Stop Monitoring"
-
-        }
-        else {
-            beaconManager.stopMonitoring(beaconReferenceApplication.region)
-            dialogTitle = "Beacon monitoring stopped."
-            dialogMessage = "You will no longer see dialogs when beacons start/stop being detected."
-            monitoringButton.text = "Start Monitoring"
-        }
-        val builder =
-            AlertDialog.Builder(this)
-        builder.setTitle(dialogTitle)
-        builder.setMessage(dialogMessage)
-        builder.setPositiveButton(android.R.string.ok, null)
-        alertDialog?.dismiss()
-        alertDialog = builder.create()
-        alertDialog?.show()
-
-    }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -149,7 +104,6 @@ class MainActivity : AppCompatActivity() {
             Log.d(TAG, "onRequestPermissionResult for "+permissions[i]+":" +grantResults[i])
         }
     }
-
 
     private fun checkPermissions() {
         // base permissions are for M and higher

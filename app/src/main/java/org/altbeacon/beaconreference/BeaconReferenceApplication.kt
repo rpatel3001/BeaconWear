@@ -17,6 +17,7 @@ import org.altbeacon.beacon.BeaconTransmitter
 import org.altbeacon.beacon.BeaconParser
 
 import org.altbeacon.beacon.Beacon
+import org.altbeacon.beacon.logging.LogManager
 
 
 class BeaconReferenceApplication: Application(), MonitorNotifier {
@@ -26,22 +27,6 @@ class BeaconReferenceApplication: Application(), MonitorNotifier {
         super.onCreate()
 
         val beaconManager = BeaconManager.getInstanceForApplication(this)
-
-        // By default the AndroidBeaconLibrary will only find AltBeacons.  If you wish to make it
-        // find a different type of beacon, you must specify the byte layout for that beacon's
-        // advertisement with a line like below.  The example shows how to find a beacon with the
-        // same byte layout as AltBeacon but with a beaconTypeCode of 0xaabb.  To find the proper
-        // layout expression for other beacon types, do a web search for "setBeaconLayout"
-        // including the quotes.
-        //
-        //beaconManager.getBeaconParsers().clear();
-        //beaconManager.getBeaconParsers().add(new BeaconParser().
-        //        setBeaconLayout("m:0-1=4c00,i:2-24v,p:24-24"));
-
-        // The example shows how to find iBeacon.
-        beaconManager.beaconParsers.add(
-            BeaconParser().
-                setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24"))
 
         // enabling debugging will send lots of verbose debug information from the library to Logcat
         // this is useful for troubleshooting problems
@@ -81,17 +66,29 @@ class BeaconReferenceApplication: Application(), MonitorNotifier {
 
         // This code block starts beacon transmission
         val beacon = Beacon.Builder()
-            .setId1("2f234454-cf6d-4a0f-adf2-f4911ba9ffa6")
-            .setId2("1")
-            .setId3("2")
-            .setManufacturer(0x0118) // Radius Networks.  Change this for other beacon layouts
-            .setTxPower(-59)
-            .setDataFields(listOf(0)) // Remove this for beacon layouts without d: fields
+            .setId1("3260e3c0-3532-3d6b-5f9c-075948043c3e")
+            .setId2("64")
+            .setId3("1")
+            .setManufacturer(0x004c)
+            .setTxPower(-56)
+            .setDataFields(listOf(0))
             .build()
 
         // Change the layout below for other beacon types
         val beaconParser = BeaconParser()
             .setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24")
+
+        val advertisingBytes: ByteArray = beaconParser.getBeaconAdvertisementData(beacon)
+        var byteString = ""
+        for (i in advertisingBytes.indices) {
+            byteString += String.format("%02X", advertisingBytes[i])
+            byteString += " "
+        }
+        Log.d(
+            TAG,
+            "Starting advertising with ID1: " + beacon.id1 + "and data: " + byteString + " of size " + advertisingBytes.size)
+
+
         val beaconTransmitter = BeaconTransmitter(applicationContext, beaconParser)
         beaconTransmitter.startAdvertising(beacon, object : AdvertiseCallback() {
             override fun onStartFailure(errorCode: Int) {
@@ -121,23 +118,6 @@ class BeaconReferenceApplication: Application(), MonitorNotifier {
         notificationManager.createNotificationChannel(channel)
         builder.setChannelId(channel.id)
         BeaconManager.getInstanceForApplication(this).enableForegroundServiceScanning(builder.build(), 456)
-    }
-
-    private val centralMonitoringObserver = Observer<Int> { state ->
-        if (state == MonitorNotifier.OUTSIDE) {
-            Log.d(TAG, "outside beacon region: $region")
-        }
-        else {
-            Log.d(TAG, "inside beacon region: $region")
-            sendNotification()
-        }
-    }
-
-    private val centralRangingObserver = Observer<Collection<Beacon>> { beacons ->
-        Log.d(MainActivity.TAG, "Ranged: ${beacons.count()} beacons")
-        for (beacon: Beacon in beacons) {
-            Log.d(TAG, "$beacon about ${beacon.distance} meters away")
-        }
     }
 
     private fun sendNotification() {
