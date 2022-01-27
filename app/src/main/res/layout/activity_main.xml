@@ -13,34 +13,86 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         tools:context=".MainActivity"
-        app:layout_boxedEdges="all">
+        app:layout_boxedEdges="all"
+        android:gravity="center">
 
-        <EditText
-            android:id="@+id/uuid"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <EditText
-            android:id="@+id/major"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <EditText
-            android:id="@+id/minor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <EditText
-            android:id="@+id/txpwr"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <Button
-            android:id="@+id/broadcastButton"
-            android:text="Start Broadcasting"
-            android:onClick="broadcastButtonTapped"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:labelFor="@+id/uuid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                android:text="ID"/>
+            <EditText
+                android:id="@+id/uuid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="8sp"
+                android:importantForAutofill="no"
+                android:digits="0123456789ABCDEF-"
+                android:inputType="textCapCharacters|textNoSuggestions"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:labelFor="@+id/major"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Maj"/>
+            <EditText
+                android:id="@+id/major"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:importantForAutofill="no"
+                android:inputType="number"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:labelFor="@+id/minor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Min"/>
+            <EditText
+                android:id="@+id/minor"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:importantForAutofill="no"
+                android:inputType="number"
+                android:layout_weight="1"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:labelFor="@+id/txpwr"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="TX Pwr"
+                android:layout_weight="1"/>
+            <EditText
+                android:id="@+id/txpwr"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:importantForAutofill="no"
+                android:inputType="numberSigned"
+                android:layout_weight="3"/>
+            <Button
+                android:id="@+id/broadcastButton"
+                android:text="Start"
+                android:onClick="broadcastButtonTapped"
+                android:textSize="11sp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"/>
+        </LinearLayout>
 
     </LinearLayout>
 
