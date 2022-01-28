@@ -8,6 +8,8 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
@@ -17,6 +19,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         supportActionBar?.hide()
+
+        val freq: Spinner = findViewById(R.id.freq)
+        val freqAdapter = ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_item,
+                arrayOf("1 Hz", "3 Hz", "10 Hz"))
+        freq.adapter = freqAdapter
+
+        val mode: Spinner = findViewById(R.id.mode)
+        val modeAdapter = ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_item,
+                arrayOf("Ultra Low", "Low", "Medium", "High"))
+        mode.adapter = modeAdapter
     }
 
     override fun onPause() {

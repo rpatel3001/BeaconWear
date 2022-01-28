@@ -70,7 +70,7 @@ class BeaconReferenceApplication: Application(), MonitorNotifier {
             .setId2("64")
             .setId3("1")
             .setManufacturer(0x004c)
-            .setTxPower(-62)
+            .setTxPower(-59)
             .setDataFields(listOf(0))
             .build()
 
