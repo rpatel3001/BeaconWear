@@ -1,10 +1,7 @@
-## Overview
+This app is intended to run on Wear OS 3 devices and transmit BLE iBeacon advertisements meant for presence detection and rough distance estimation. 
 
-This is a Kotlin reference app for the AndroidBeaconLibrary
+It has only been tested on my Galaxy Watch 4.
 
-## Project Setup
+The UUID, major and minor numbers, and reference transmitter power are hard-coded in the source code and the UI is nonfunctional. As this meets my needs and I anticipate that the Home Assistant app will add this capability eventually, I won't be developing this any further. 
 
-1. Install [Android Studio](https://developer.android.com/sdk/installing/studio.html) 4.1+
-2. Open this project
-
-See the [Java refernce app here.](https://github.com/AltBeacon/android-beacon-library-reference)
+Credit to the good folks at @AltBeacon, this was forked from https://github.com/davidgyoung/android-beacon-library-reference-kotlin and modified with code from https://altbeacon.github.io/android-beacon-library/beacon-transmitter.html.
