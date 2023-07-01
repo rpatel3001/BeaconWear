@@ -1,3 +1,5 @@
+THIS IS OBSOLETE, THE HOME ASSISTANT WEAR OS APP CAN NOW PRODUCE IBEACONS.
+
 This app is intended to run on Wear OS 3 devices and transmit BLE iBeacon advertisements meant for presence detection and rough distance estimation. 
 
 It has only been tested on my Galaxy Watch 4.
